@@ -45,3 +45,4 @@ while True:
     joystick.draw_selection_box()
     joystick.disp.image(background)  # 항상 하트와 콜라가 보이도록 배경 업데이트
     time.sleep(0.1)
+# asdf
