@@ -14,7 +14,7 @@ class PointHeart:
 
     def decrease_heart(self):
         # Heart_1을 화면에서 지우는 방식으로 목숨 감소
-        updated_background = Image.open("Fund.jpg").resize((self.joystick.width, self.joystick.height)).convert("RGB")
+        updated_background = Image.open("Fund.png").resize((self.joystick.width, self.joystick.height)).convert("RGB")
         self.joystick.disp.image(updated_background)
 
         # 목숨이 없어지면 새드엔딩을 표시

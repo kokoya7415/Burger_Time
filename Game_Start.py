@@ -1,13 +1,15 @@
+# Game_Start.py
+
 import time
 from PIL import Image
 from JoyStick import Joystick
 from Visitor import Visitor
 from Point_Heart import PointHeart
-from Cook import Cook  # Cook 클래스를 불러옴
+from Cook import Cook
 
 # Joystick 인스턴스 생성
 joystick = Joystick()
-joystick.backlight.value = True  # 백라이트를 켜둠 (항상 유지)
+joystick.backlight.value = True  # 백라이트를 켜둠
 
 # Start.png 이미지를 먼저 표시
 joystick.display_image("Start.png")
@@ -15,34 +17,24 @@ joystick.display_image("Start.png")
 # 버튼 #5 (button_A)가 눌릴 때까지 대기
 while True:
     if not joystick.buttons["A"].value:
-        # Fund.jpg를 배경으로 불러오기
-        background = Image.open("Fund.jpg").resize((joystick.width, joystick.height)).convert("RGB")
-        
-        # 하트와 콜라 준비 인스턴스 생성
+        initial_background = Image.open("Fund.png").resize((joystick.width, joystick.height)).convert("RGB")
         point_heart = PointHeart(joystick)
-        cook = Cook(joystick)  # Cook 인스턴스 생성
-        
-        # 하트를 Fund 이미지와 함께 표시
-        background = point_heart.display_heart(background)
-        joystick.disp.image(background)
+        cook = Cook()
+        joystick.disp.image(initial_background)
         break
     time.sleep(0.1)
 
-# Visitor 생성 및 8번 등장 반복
-for _ in range(8):
-    visitor = Visitor(joystick, background, point_heart)
-    visitor.move_and_display_visitor()
+# 최대 등장 횟수와 등장 카운트 설정
+max_visits = 7
+visit_count = 0
 
-# 조이스틱 탐색 가능 (엔딩 전까지 무한 루프)
-while True:
-    background = Image.open("Fund.jpg").resize((joystick.width, joystick.height)).convert("RGB")
-    
-    # 콜라가 조리되었을 때 배경에 표시되도록 설정
-    background = point_heart.display_heart(background)
-    background = cook.cook_cola(background)  # 콜라 조리 상태 업데이트
-    
-    joystick.update_position()
-    joystick.draw_selection_box()
-    joystick.disp.image(background)  # 항상 하트와 콜라가 보이도록 배경 업데이트
-    time.sleep(0.1)
-# asdf
+# 게임 루프 - 손님이 최대 7번 등장하도록 설정
+while visit_count < max_visits:
+    visitor = Visitor(joystick, initial_background, point_heart, cook)
+    visitor.move_and_display_visitor()
+    visit_count += 1
+    # 다음 손님 준비를 위해 초기 백그라운드 이미지를 복제하여 사용
+    initial_background = Image.open("Fund.png").resize((joystick.width, joystick.height)).convert("RGB")
+
+# 게임 종료 이후 처리
+print("게임 종료: 손님이 7번 등장했습니다.")

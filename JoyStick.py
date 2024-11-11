@@ -1,10 +1,7 @@
-# JoyStick.py
-
 from PIL import Image, ImageDraw
-from adafruit_rgb_display import st7789
 import board
-from digitalio import DigitalInOut, Direction
-import time
+from digitalio import DigitalInOut, Direction, Pull
+from adafruit_rgb_display import st7789
 
 class Joystick:
     def __init__(self):
@@ -28,7 +25,7 @@ class Joystick:
 
         # 백라이트 설정
         self.backlight = DigitalInOut(board.D26)
-        self.backlight.switch_to_output(value=True)  # 백라이트를 항상 켜둠
+        self.backlight.switch_to_output(value=True)
 
         # 버튼 설정
         self.buttons = {
@@ -47,15 +44,11 @@ class Joystick:
 
         # 아이템 위치 좌표 설정
         self.item_positions = [
-            (0, 149, 32, 170),   # 아래빵
-            (31, 148, 69, 170),  # 패티
-            (69, 148, 100, 170), # 치즈
-            (0, 172, 33, 195),   # 토마토
-            (32, 172, 69, 195),  # 양상추
-            (69, 172, 100, 195), # 위에빵
-            (106, 142, 155, 198),# 후라이팬
-            (160, 150, 195, 193),# 튀김기
-            (198, 147, 232, 193),# 감자 모음
+            (0, 149, 32, 195),   # 빵
+            (31, 148, 69, 195),  # 양상추
+            (69, 148, 100, 195), # 소세지
+            (167, 141, 195, 192),# 머스타드
+            (198, 141, 228, 192),# 케챱
             (0, 100, 47, 137),    # 계산대
             (185, 0, 238, 95)    # 콜라 냉장고
         ]
@@ -64,44 +57,31 @@ class Joystick:
         image = Image.open(image_path).resize((self.width, self.height))
         self.disp.image(image)
 
-    def draw_selection_box(self):
-        image = Image.open("Fund.jpg").resize((self.width, self.height)).convert("RGB")
-        draw = ImageDraw.Draw(image)
+    def draw_selection_box(self, background):
+        # 현재 선택된 위치에 빨간색 테두리를 그림
         x1, y1, x2, y2 = self.item_positions[self.current_position]
+        draw = ImageDraw.Draw(background)
         draw.rectangle((x1, y1, x2, y2), outline="red", width=3)
-        self.disp.image(image)
+        return background
 
     def update_position(self):
-        # 조이스틱 이동 논리 구현
-        if self.current_position in [0, 1, 2, 6, 7, 8] and not self.buttons["U"].value:
-            self.current_position = 9
-        elif self.current_position == 9 and not self.buttons["D"].value:
-            self.current_position = 0
-        elif self.current_position == 9 and not self.buttons["U"].value:
-            self.current_position = 10
-        elif self.current_position == 10 and not self.buttons["D"].value:
-            self.current_position = 9
-        elif self.current_position == 10 and not self.buttons["U"].value:
-            return
-        elif self.current_position == 9 and not self.buttons["L"].value:
-            return
-        elif self.current_position == 3 and not self.buttons["L"].value:
-            return
-        elif self.current_position in [3, 4, 5, 6, 7, 8] and not self.buttons["D"].value:
-            return
-        elif self.current_position == 8 and not self.buttons["R"].value:
-            return
-        elif not self.buttons["U"].value:
-            self.current_position = max(0, self.current_position - 3)
-        elif not self.buttons["D"].value:
-            self.current_position = min(len(self.item_positions) - 1, self.current_position + 3)
-        elif not self.buttons["L"].value:
-            if self.current_position == 6:
-                self.current_position = 2
-            else:
-                self.current_position = max(0, self.current_position - 1)
-        elif not self.buttons["R"].value:
-            if self.current_position == 2:
-                self.current_position = 6
-            else:
-                self.current_position = min(len(self.item_positions) - 1, self.current_position + 1)
+        # 각 위치에서의 이동 방향을 설정
+        position_map = {
+            0: {"U": 5, "R": 1},   # 빵
+            1: {"L": 0, "U": 5, "R": 2},   # 양상추
+            2: {"L": 1, "U": 5, "R": 3},   # 소세지
+            3: {"L": 2, "U": 5, "R": 4},   # 머스타드
+            4: {"L": 3, "U": 5},   # 케챱
+            5: {"D": 0, "U": 6, "R": 6},   # 계산대
+            6: {"D": 5, "L": 5}    # 콜라냉장고
+        }
+
+        # 방향에 따라 이동
+        if not self.buttons["U"].value and "U" in position_map[self.current_position]:
+            self.current_position = position_map[self.current_position]["U"]
+        elif not self.buttons["D"].value and "D" in position_map[self.current_position]:
+            self.current_position = position_map[self.current_position]["D"]
+        elif not self.buttons["L"].value and "L" in position_map[self.current_position]:
+            self.current_position = position_map[self.current_position]["L"]
+        elif not self.buttons["R"].value and "R" in position_map[self.current_position]:
+            self.current_position = position_map[self.current_position]["R"]
