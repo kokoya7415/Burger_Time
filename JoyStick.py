@@ -1,6 +1,6 @@
 from PIL import Image, ImageDraw
 import board
-from digitalio import DigitalInOut, Direction, Pull
+from digitalio import DigitalInOut, Direction
 from adafruit_rgb_display import st7789
 
 class Joystick:
@@ -58,25 +58,22 @@ class Joystick:
         self.disp.image(image)
 
     def draw_selection_box(self, background):
-        # 현재 선택된 위치에 빨간색 테두리를 그림
         x1, y1, x2, y2 = self.item_positions[self.current_position]
         draw = ImageDraw.Draw(background)
         draw.rectangle((x1, y1, x2, y2), outline="red", width=3)
         return background
 
     def update_position(self):
-        # 각 위치에서의 이동 방향을 설정
         position_map = {
-            0: {"U": 5, "R": 1},   # 빵
-            1: {"L": 0, "U": 5, "R": 2},   # 양상추
-            2: {"L": 1, "U": 5, "R": 3},   # 소세지
-            3: {"L": 2, "U": 5, "R": 4},   # 머스타드
-            4: {"L": 3, "U": 5},   # 케챱
-            5: {"D": 0, "U": 6, "R": 6},   # 계산대
-            6: {"D": 5, "L": 5}    # 콜라냉장고
+            0: {"U": 5, "R": 1},
+            1: {"L": 0, "U": 5, "R": 2},
+            2: {"L": 1, "U": 5, "R": 3},
+            3: {"L": 2, "U": 5, "R": 4},
+            4: {"L": 3, "U": 5},
+            5: {"D": 0, "U": 6, "R": 6},
+            6: {"D": 5, "L": 5}
         }
 
-        # 방향에 따라 이동
         if not self.buttons["U"].value and "U" in position_map[self.current_position]:
             self.current_position = position_map[self.current_position]["U"]
         elif not self.buttons["D"].value and "D" in position_map[self.current_position]:

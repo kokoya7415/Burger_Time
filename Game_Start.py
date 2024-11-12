@@ -1,5 +1,3 @@
-# Game_Start.py
-
 import time
 from PIL import Image
 from JoyStick import Joystick
@@ -33,8 +31,6 @@ while visit_count < max_visits:
     visitor = Visitor(joystick, initial_background, point_heart, cook)
     visitor.move_and_display_visitor()
     visit_count += 1
-    # 다음 손님 준비를 위해 초기 백그라운드 이미지를 복제하여 사용
     initial_background = Image.open("Fund.png").resize((joystick.width, joystick.height)).convert("RGB")
 
-# 게임 종료 이후 처리
 print("게임 종료: 손님이 7번 등장했습니다.")

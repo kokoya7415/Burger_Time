@@ -7,7 +7,6 @@ class Cook:
 
     def prepare_cola(self):
         self.cola_prepared = True
-        print("Cola is prepared.")
 
     def display_cola(self, background):
         if self.cola_prepared:
