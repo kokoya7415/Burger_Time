@@ -18,27 +18,28 @@ class Visitor:
         while self.visitor_position < 10:
             if not self.stopped:
                 self.visitor_position += 5
-                background = self.initial_background.copy()
-                background.paste(self.visitor_image, (int(self.visitor_position), 0), self.visitor_image)
-                background = self.point_heart.display_heart(background)
-                background = self.draw_selection_box(background)
-                self.joystick.disp.image(background)
+                self.display_visitor()
                 time.sleep(0.1)
                 self.joystick.update_position()
             else:
                 self.show_speech_bubble()
                 self.start_countdown()
                 break
-
         if not self.stopped:
             self.stopped = True
             self.show_speech_bubble()
             self.start_countdown()
 
+    def display_visitor(self):
+        background = self.initial_background.copy()
+        background.paste(self.visitor_image, (int(self.visitor_position), 0), self.visitor_image)
+        background = self.point_heart.display_heart(background)
+        background = self.draw_selection_box(background)
+        self.joystick.disp.image(background)
+
     def show_speech_bubble(self):
         background = self.initial_background.copy()
         background.paste(self.visitor_image, (int(self.visitor_position), 0), self.visitor_image)
-        # 말풍선을 약간 오른쪽으로 이동 (5픽셀)
         background.paste(self.speech_bubble, (int(self.visitor_position) - 30, 10), self.speech_bubble)
         background = self.point_heart.display_heart(background)
         background = self.draw_selection_box(background)
@@ -47,41 +48,33 @@ class Visitor:
     def start_countdown(self):
         countdown_time = 15
         font = ImageFont.truetype("DejaVuSans-Bold.ttf", 20)
-
         for i in range(countdown_time, -1, -1):
             start_time = time.time()
             while time.time() - start_time < 1:
-                background = self.initial_background.copy()
-                background.paste(self.visitor_image, (int(self.visitor_position), 0), self.visitor_image)
-                # 말풍선을 약간 오른쪽으로 이동 (5픽셀)
-                background.paste(self.speech_bubble, (int(self.visitor_position) - 30, 10), self.speech_bubble)
-                background = self.point_heart.display_heart(background)
-                background = self.draw_selection_box(background)
-
-                # 카운트다운 텍스트 표시
-                draw = ImageDraw.Draw(background)
-                text = f"{i}"
-                text_bbox = draw.textbbox((0, 0), text, font=font)
-                text_x = (self.joystick.width - (text_bbox[2] - text_bbox[0])) // 2
-                text_y = self.joystick.height - (text_bbox[3] - text_bbox[1]) - 9
-                draw.text((text_x, text_y), text, font=font, fill="white")
-                
-                self.joystick.disp.image(background)
+                self.display_countdown(i, font)
                 self.joystick.update_position()
                 time.sleep(0.05)
-
         time.sleep(2)
         self.clear_visitor()
+
+    def display_countdown(self, i, font):
+        background = self.initial_background.copy()
+        background.paste(self.visitor_image, (int(self.visitor_position), 0), self.visitor_image)
+        background.paste(self.speech_bubble, (int(self.visitor_position) - 30, 10), self.speech_bubble)
+        background = self.point_heart.display_heart(background)
+        background = self.draw_selection_box(background)
+        draw = ImageDraw.Draw(background)
+        text = f"{i}"
+        text_bbox = draw.textbbox((0, 0), text, font=font)
+        text_x = (self.joystick.width - (text_bbox[2] - text_bbox[0])) // 2
+        text_y = self.joystick.height - (text_bbox[3] - text_bbox[1]) - 9
+        draw.text((text_x, text_y), text, font=font, fill="white")
+        self.joystick.disp.image(background)
 
     def clear_visitor(self):
         while self.visitor_position > -self.visitor_image.width:
             self.visitor_position -= 5
-            background = self.initial_background.copy()
-            background.paste(self.visitor_image, (int(self.visitor_position), 0), self.visitor_image)
-            background = self.point_heart.display_heart(background)
-            background = self.draw_selection_box(background)
-            self.joystick.disp.image(background)
-            self.joystick.update_position()
+            self.display_visitor()
             time.sleep(0.05)
 
     def draw_selection_box(self, background):
