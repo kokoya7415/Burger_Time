@@ -1,6 +1,41 @@
-import pygame as pg
 import random
 from PIL import Image, ImageDraw, ImageFont
+import board
+from gpiozero import Button
+from digitalio import DigitalInOut
+from PIL import Image, ImageDraw, ImageFont
+from adafruit_rgb_display import st7789
+import time
+
+spi = board.SPI()
+cs_pin = DigitalInOut(board.CE0)
+dc_pin = DigitalInOut(board.D25)
+reset_pin = DigitalInOut(board.D24)
+BAUDRATE = 24000000
+
+disp = st7789.ST7789(
+    spi,
+    height=240,
+    y_offset=80,
+    rotation=180,
+    cs=cs_pin,
+    dc=dc_pin,
+    rst=reset_pin,
+    baudrate=BAUDRATE,
+)
+def setup_button(pin):
+    button = Button(pin)
+    return button
+
+
+# 백라이트와 버튼 설정
+backlight = DigitalInOut(board.D26)
+backlight.switch_to_output(value=True)
+buttons = {name: setup_button(pin) for name, pin in [
+    ("A", 5), ("L", 27), ("R", 23)
+]}
+
+
 
 class Visitor:
     def __init__(self,wait_cnt):
@@ -119,40 +154,31 @@ visitor = Visitor(wait_cnt=15)
 cook = Cook(visitor.order)
 
 
-def keyA():
-    global visitor, cook, joy
+buttons['L'].when_pressed = joy.goLeft
+buttons['R'].when_pressed = joy.goRight
 
-    if visitor.state == 1:
-        cook.nextStep(joy.current_position)
+def keyA_():
+    global start
+    start = True
+buttons['A'].when_pressed = keyA_
 
-
-pg.init()
-pg.display.set_mode((240, 240))
-screen = pg.display.get_surface()
-clock = pg.time.Clock()
 ticks = 0
 
 homeImage = [Image.open("Start.png"),Image.open("Start_.png")]
 start = False
 flag = 0
 while not start:
-    for event in pg.event.get():
-        if event.type == pg.QUIT:
-            start = True
-        if event.type == pg.KEYDOWN:
-            if event.key == pg.K_a:
-                joy.goLeft()
-            if event.key == pg.K_d:
-                joy.goRight()
-            if event.key == pg.K_p:
-                start = True
     # display
-    screen.blit(pg.image.fromstring(homeImage[flag].tobytes(), homeImage[flag].size, "RGB"), (0, 0))
-    pg.display.flip()
-    clock.tick(2)
+    time.sleep(0.1)
     
     flag = 1 - flag
-                
+             
+def keyA():
+    global visitor, cook, joy
+
+    if visitor.state == 1:
+        cook.nextStep(joy.current_position)
+buttons['A'].when_pressed = keyA   
 
 maxVisit = 7
 visited = 0
@@ -161,18 +187,6 @@ waitCount = 15
 bg = bgImage.copy()
 running = True
 while running:
-
-    # input
-    for event in pg.event.get():
-        if event.type == pg.QUIT:
-            running=False
-        if event.type == pg.KEYDOWN:
-            if event.key == pg.K_a:
-                joy.goLeft()
-            if event.key == pg.K_d:
-                joy.goRight()
-            if event.key == pg.K_p:
-                keyA()
 
     # update
     visitor.move()
@@ -248,9 +262,8 @@ while running:
             )
 
     # display
-    screen.blit(pg.image.fromstring(bg.tobytes(), bg.size, "RGB"), (0, 0))
-    pg.display.flip()
-    clock.tick(15)
+    disp.image(bg)
+    time.sleep(0.01)
     ticks += 1
 
 isGoodEnding = score == 7
@@ -259,17 +272,4 @@ endingImage = [
     Image.open("Good_Ending.jpg")
 ]
 endingImage = endingImage[isGoodEnding]
-while True:
-    # input
-    for event in pg.event.get():
-        if event.type == pg.QUIT:
-            pg.quit()
-            quit()
-        if event.type == pg.KEYDOWN:
-            pg.quit()
-            quit()
-    
-    
-    screen.blit(pg.image.fromstring(endingImage.tobytes(), endingImage.size, "RGB"), (0, 0))
-    pg.display.flip()
-    clock.tick(15)
+disp.image(endingImage)
