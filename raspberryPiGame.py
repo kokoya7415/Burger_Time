@@ -124,7 +124,7 @@ class Cook:
 
 bgImage = Image.open("Fund.png").resize((240, 240)).convert("RGB")
 bubbleImage = Image.open("Say.png").convert("RGBA")
-colaImage = Image.open("cola.png").convert("RGBA")
+colaImage = Image.open("Cola.png").convert("RGBA")
 
 breadImage = Image.open("Bread.png").convert("RGBA")
 vegetableImage = Image.open("Vegetable.png").convert("RGBA")
@@ -148,7 +148,7 @@ hotdogImages = [
     ketchupImage
 ]
 
-font = ImageFont.truetype("arial.ttf", 18)  # 적절히 크기 조정된 폰트
+font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 18)  # 적절히 크기 조정된 폰트
 joy = Joystick()
 visitor = Visitor(wait_cnt=15)
 cook = Cook(visitor.order)
