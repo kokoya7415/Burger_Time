@@ -169,6 +169,7 @@ start = False
 flag = 0
 while not start:
     # display
+    disp.image(homeImage[0])
     time.sleep(0.1)
     
     flag = 1 - flag
