@@ -1,7 +1,7 @@
 import random
 from PIL import Image, ImageDraw, ImageFont
 import board
-from gpiozero import Button
+from gpiozero import Button # type: ignore
 from digitalio import DigitalInOut
 from PIL import Image, ImageDraw, ImageFont
 from adafruit_rgb_display import st7789

@@ -1,4 +1,4 @@
-import pygame as pg
+import pygame as pg # type: ignore
 import random
 from PIL import Image, ImageDraw, ImageFont
 
