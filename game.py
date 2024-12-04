@@ -42,7 +42,7 @@ class Joystick:
     def __init__(self):
         self.item_positions = [
             (5, 155), (35, 155), (75, 155),
-            (170, 150), (205, 150), (15, 105), (190, 5)
+            (170, 150), (205, 150), (5, 105), (190, 0)
         ]
 
         self.current_position = 0
@@ -89,7 +89,7 @@ class Cook:
 
 bgImage = Image.open("Fund.png").resize((240, 240)).convert("RGB")
 bubbleImage = Image.open("Say.png").convert("RGBA")
-colaImage = Image.open("Cola.png").convert("RGBA")
+colaImage = Image.open("cola.png").convert("RGBA")
 
 breadImage = Image.open("Bread.png").convert("RGBA")
 vegetableImage = Image.open("Vegetable.png").convert("RGBA")
